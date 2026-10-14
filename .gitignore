@@ -1,0 +1,36 @@
+# --- HELIUS data must never be committed (Data Transfer Agreement) ---
+data/**
+!data/**/
+!data/**/.gitkeep
+*.sav
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.dta
+*.rds
+*.RDS
+*.RData
+*.rda
+*.zip
+*.tree
+*.biom
+*.fastq*
+*.h5
+
+# Results may contain participant-level output; commit deliberately only
+results/**
+!results/**/
+!results/**/.gitkeep
+
+# R / RStudio / Positron
+.Rhistory
+.Rapp.history
+.Rproj.user/
+.httr-oauth
+renv/library/
+renv/staging/
+
+# OS
+.DS_Store
+Thumbs.db
