@@ -1,7 +1,5 @@
 # --- HELIUS data must never be committed (Data Transfer Agreement) ---
-data/**
-!data/**/
-!data/**/.gitkeep
+data/
 *.sav
 *.csv
 *.tsv
@@ -19,9 +17,7 @@ data/**
 *.h5
 
 # Results may contain participant-level output; commit deliberately only
-results/**
-!results/**/
-!results/**/.gitkeep
+results/
 
 # R / RStudio / Positron
 .Rhistory
