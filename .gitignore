@@ -29,4 +29,6 @@ renv/staging/
 
 # OS
 .DS_Store
-Thumbs.db
+Thumbs.db# pixi environments
+.pixi/*
+!.pixi/config.toml
