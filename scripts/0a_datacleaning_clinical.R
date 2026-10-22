@@ -73,6 +73,11 @@ helius_clean_df <- helius_df |>
     ffmi_h1 = ffm_kg_h1 / (height / 100)^2,
     fmi_h1 = fm_kg_h1 / (height / 100)^2,
 
+    # Weight change H1 -> H2
+    weight_change_kg = weight_kg_h2 - weight_kg_h1,
+    weight_change_perc = (weight_kg_h2 - weight_kg_h1) / weight_kg_h1 * 100,
+    bmi_change = bmi_h2 - bmi_h1,
+
     # Glycaemic criteria per test (ADA SoC 2026) - H1
     dm_fpg_h1 = if_else(glu_mmoll_h1 >= 7.0, "yes", "no"),
     dm_hba1c_h1 = if_else(hba1c_mmolmol_h1 >= 48, "yes", "no"),
