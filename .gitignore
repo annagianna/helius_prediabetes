@@ -1,4 +1,4 @@
-# --- HELIUS data must never be committed (Data Transfer Agreement) ---
+# --- HELIUS data never to be committed ---
 data/
 *.sav
 *.csv
@@ -29,6 +29,8 @@ renv/staging/
 
 # OS
 .DS_Store
-Thumbs.db# pixi environments
+Thumbs.db
+
+# pixi environments
 .pixi/*
 !.pixi/config.toml
