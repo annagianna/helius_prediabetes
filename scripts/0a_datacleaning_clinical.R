@@ -18,7 +18,7 @@ helius_clean_df <- helius_df |>
     fu_done_h2 = H2_LichamelijkOnderzoekJN, fu_time_months_h2 = H2_fu_time,
     sex = H1_geslacht,
     age_h1 = H1_lft, age_h2 = H2_lft,
-    migr_gen_h1 = H1_MigrGeneratie, ethnicity_h1 = H1_etniciteit,
+    migr_gen_h1 = H1_MigrGeneratie, ethnicity_h1 = H1_etniciteit, ethnicity_detail_h1 = H1_EtnTotaal,
     smoking_h1 = H1_Roken, packyears_h1 = H1_PackYears, smoking_h2 = H2_Roken_H1combined,
     alcohol_yn_h1 = H1_AlcoholJN, alcohol_cat_h1 = H1_AlcoholConsumption,
     alcohol_yn_h2 = H2_AlcoholJN, alcohol_cat_h2 = H2_AlcoholConsumption,
@@ -156,12 +156,38 @@ cohort3 |> count(glyc_status_h1)                                         # step 
 final_analysis_cohort |> count(glyc_status_h2)                           # incidence (primary outcome)
 cohort3 |> filter(glyc_status_h1 == "PreDM") |> count(glyc_status_h2)    # baseline prediabetes -> H2
 
+# Save
+saveRDS(helius_clean_df, "data/processed_data/helius_clinical.RDS")
+saveRDS(final_analysis_cohort, "data/processed_data/helius_cohort.RDS")
+
 ## Metabolomics ##
 helius_metab <- helius_df |> 
   select(id = ID, starts_with("H1_Met_plasma")) |> 
   filter(if_any(-id, ~ !is.na(.x)))
 
+# Lookup table
+metab_lookup <- tibble(
+  metab_code = names(helius_metab[-1]),
+  metab_label = map_chr(helius_metab[-1], \(x) attr(x, "label") %||% NA_character_),
+  metab_clean = metab_label |> 
+    str_remove(fixed(" (in plasma)")) |> 
+    str_to_lower() |> 
+    str_replace_all("[^a-z0-9]+", "_") |> 
+    str_remove_all("^_|_$")
+) |> 
+  mutate(
+    prop_min = map_dbl(helius_metab[-1], \(x) mean(x == min(x, na.rm = TRUE), na.rm = TRUE)),
+    variance = map_dbl(helius_metab[-1], \(x) var(x, na.rm = TRUE))
+  )
+
+# Checks
+sum(metab_lookup$variance == 0) # constants 0; none removed
+summary(metab_lookup$prop_min) # metabolon min imputation
+
+# Metabolite values: drop SPSS labels, keep raw (median-scaled) values
+helius_metab_clean <- helius_metab |> 
+  mutate(across(starts_with("H1_Met"), as.numeric))
+
 # Save
-saveRDS(helius_clean_df, "data/processed_data/helius_clinical.RDS")
-saveRDS(final_analysis_cohort, "data/processed_data/helius_cohort.RDS")
-saveRDS(helius_metab, "data/processed_data/helius_metabolomics.RDS")
+saveRDS(helius_metab_clean, "data/processed_data/helius_metab_clean.RDS")
+saveRDS(metab_lookup, "data/processed_data/helius_metab_lookup.RDS")
