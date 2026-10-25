@@ -17,9 +17,18 @@ helius_mb_tax <- subset_taxa(
     (is.na(Family) | Family != "Mitochondria")
 )
 
-# Calculate ASV prevalence (taxa are rows)
-asv_prev <- apply(as(otu_table(helius_mb_tax), "matrix"), 1, \(x) sum(x > 0))
+# Remove ASVs with zero counts across all samples
+helius_mb_tax <- prune_taxa(taxa_sums(helius_mb_tax) > 0, helius_mb_tax)
 
 # Convert counts to rel. abundance (%)
 helius_mb_rel <- transform_sample_counts(helius_mb_tax, \(x) 100 * x / sum(x))
-rel_mat <- as(otu_table(helius_mb_rel), "matrix") # extract rel. abundance matrix
+
+# Retain ASVs with >0.05% relative abundance in >10% of samples
+helius_mb_rel_filtered <- filter_taxa(helius_mb_rel, \(x) sum(x > 0.05) > 0.10 * length(x), prune = TRUE)
+helius_mb_counts_filtered <- prune_taxa(taxa_names(helius_mb_rel_filtered), helius_mb_tax) # Retain corresponding raw counts
+
+## Save cleaned 16S objects
+dir.create("data/processed_data/mb_data", recursive = TRUE, showWarnings = FALSE)
+saveRDS(helius_mb_tax, "data/processed_data/mb_data/HELIUS_16S_tax_filtered.rds") # Taxonomically filtered counts (for alpha beta diversity)
+saveRDS(helius_mb_counts_filtered, "data/processed_data/mb_data/HELIUS_16S_counts_prev10.rds") # Prevalence-filtered counts (10%)
+saveRDS(helius_mb_rel_filtered, "data/processed_data/mb_data/HELIUS_16S_rel_prev10.rds") # Prevalence-filtered rel abundances (10%)
