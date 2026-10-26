@@ -25,12 +25,12 @@ Based on the ADA Standards of Care in Diabetes — 2026 [1]. HELIUS has no OGTT 
 
 ## Study population
 
-Participants with both HELIUS-1 and HELIUS-2 data, then (see the flowchart in `0a`):
+Participants with both HELIUS-1 and HELIUS-2 data, then (see the flowchart in `0c`):
 
-1. Baseline 16S microbiome data available *(not yet merged)*
+1. Baseline 16S microbiome data available
 2. Exclude antibiotic use in the past 3 months (H1)
 3. Exclude T2D at H1
-4. Keep NGT at H1 only
+4. Split by H1 status: NGT (development cohort) or prediabetes (remission/progression cohort)
 5. Glycaemic status classifiable at H2
 
 **Primary outcome:** glycaemic status at H2 (NGT vs. new-onset prediabetes).
@@ -40,9 +40,10 @@ Participants with both HELIUS-1 and HELIUS-2 data, then (see the flowchart in `0
 ```
 scripts/
   0a_datacleaning_clinical.R   # clinical + diet variables, body composition (FFMI/FMI),
-                               # weight change, glycaemic status, analysis cohort, metabolomics
+                               # weight change, glycaemic status, metabolomics
   0b_datacleaning_mb.R         # 16S: keep Bacteria, drop chloroplast/mitochondria, drop zero-count ASVs,
                                # filter ASVs >0.05% rel. abundance in >10% of samples
+  0c_cohort_selection.R        # analysis cohorts (NGT and prediabetes at H1) + flowchart
 data/                          # raw_data/ and processed_data/ (git-ignored)
 results/                       # tables/ and graphs/ (git-ignored)
 ```
@@ -63,6 +64,7 @@ The R environment is managed with [pixi](https://pixi.sh) (`pixi.toml`, `pixi.lo
 pixi install
 pixi run Rscript scripts/0a_datacleaning_clinical.R
 pixi run Rscript scripts/0b_datacleaning_mb.R
+pixi run Rscript scripts/0c_cohort_selection.R
 ```
 
 Run the scripts from the project root.
