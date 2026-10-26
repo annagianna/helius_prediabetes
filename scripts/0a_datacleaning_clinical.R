@@ -75,6 +75,10 @@ helius_clean_df <- helius_df |>
     ffmi_h1 = ffm_kg_h1 / (height / 100)^2,
     fmi_h1 = fm_kg_h1 / (height / 100)^2,
 
+    # Relative handgrip strength (kg grip / kg body weight)
+    handgrip_mean_rel_h1 = handgrip_mean_h1 / weight_kg_h1,
+    handgrip_max_rel_h1 = handgrip_max_h1 / weight_kg_h1,
+
     # Weight change H1 -> H2
     weight_change_kg = weight_kg_h2 - weight_kg_h1,
     weight_change_perc = (weight_kg_h2 - weight_kg_h1) / weight_kg_h1 * 100,
