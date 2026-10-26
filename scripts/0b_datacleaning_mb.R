@@ -32,3 +32,25 @@ dir.create("data/processed_data/mb_data", recursive = TRUE, showWarnings = FALSE
 saveRDS(helius_mb_tax, "data/processed_data/mb_data/HELIUS_16S_tax_filtered.rds") # Taxonomically filtered counts (for alpha beta diversity)
 saveRDS(helius_mb_counts_filtered, "data/processed_data/mb_data/HELIUS_16S_counts_prev10.rds") # Prevalence-filtered counts (10%)
 saveRDS(helius_mb_rel_filtered, "data/processed_data/mb_data/HELIUS_16S_rel_prev10.rds") # Prevalence-filtered rel abundances (10%)
+
+# Expected dimensions
+ntaxa(helius_mb_tax)                  # 22053
+ntaxa(helius_mb_rel_filtered)         # 314
+ntaxa(helius_mb_counts_filtered)      # 314
+
+# No zero-count taxa or samples
+sum(taxa_sums(helius_mb_tax) == 0)     # 0
+sum(sample_sums(helius_mb_tax) == 0)   # 0
+
+# Relative abundances sum to 100%
+summary(sample_sums(helius_mb_rel))
+
+# Matching ASVs
+identical(taxa_names(helius_mb_rel_filtered), taxa_names(helius_mb_counts_filtered))
+
+# Saved files exist
+file.exists(c(
+  "data/processed_data/mb_data/HELIUS_16S_tax_filtered.rds",
+  "data/processed_data/mb_data/HELIUS_16S_counts_prev10.rds",
+  "data/processed_data/mb_data/HELIUS_16S_rel_prev10.rds"
+))
