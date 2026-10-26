@@ -66,6 +66,8 @@ helius_clean_df <- helius_df |>
     fatty_acids_g_h1 = FattyAcidsTot_Sum
   ) |> 
   mutate(
+    id = as.character(id),
+
     # Body composition (H1 only)
     fm_kg_h1 = weight_kg_h1 * fm_perc_h1 / 100,
     ffm_kg_h1 = weight_kg_h1 - fm_kg_h1,
@@ -115,54 +117,13 @@ helius_clean_df <- helius_df |>
     across(where(is.factor), ~ fct_relabel(.x, \(lvl) if_else(lvl %in% c("Yes", "No"), tolower(lvl), lvl)))
   )
 
-## Analysis cohort & counts (for flowchart)
-# Step 0: all participants with H1 & H2 data (already filtered in the data received)
-n0 <- nrow(helius_clean_df)
-
-# Step 1: with baseline microbiome data -> add once phyloseq is merged (0b)
-# cohort1 <- helius_clean_df |> 
-#   filter(id %in% sample_names(phyloseq_object))
-
-# Step 2: exclude antibiotic use in past 3 months (missing kept)
-cohort2 <- helius_clean_df |> 
-  filter(is.na(abx_h1) | abx_h1 != "yes")
-n2 <- nrow(cohort2)
-
-# Step 3: exclude diabetes at H1 (FPG >= 7.0, glucose-lowering meds or HbA1c >= 48)
-# NA status kept: no evidence of diabetes on any criterion -> dropped at step 4 instead
-cohort3 <- cohort2 |> 
-  filter(is.na(glyc_status_h1) | glyc_status_h1 != "T2D")
-n3 <- nrow(cohort3)
-
-# Step 4: NGT at H1 only (excludes prediabetes and incomplete FPG/HbA1c)
-cohort4 <- cohort3 |> 
-  filter(glyc_status_h1 == "NGT")
-n4 <- nrow(cohort4)
-
-# Step 5: exclude unclassifiable glycaemic status at H2
-final_analysis_cohort <- cohort4 |> 
-  filter(!is.na(glyc_status_h2))
-n5 <- nrow(final_analysis_cohort)
-
-flowchart <- tibble(
-  step = c("H1 & H2 data", "No antibiotics", "No diabetes H1", "Normoglycaemia H1", "Glycaemic status available H2"),
-  n_remaining = c(n0, n2, n3, n4, n5)
-) |> 
-  mutate(n_excluded = lag(n_remaining) - n_remaining)
-
-## Checks
-flowchart
-cohort3 |> count(glyc_status_h1)                                         # step 4 exclusions: PreDM vs incomplete
-final_analysis_cohort |> count(glyc_status_h2)                           # incidence (primary outcome)
-cohort3 |> filter(glyc_status_h1 == "PreDM") |> count(glyc_status_h2)    # baseline prediabetes -> H2
-
 # Save
 saveRDS(helius_clean_df, "data/processed_data/helius_clinical.RDS")
-saveRDS(final_analysis_cohort, "data/processed_data/helius_cohort.RDS")
 
 ## Metabolomics ##
 helius_metab <- helius_df |> 
   select(id = ID, starts_with("H1_Met_plasma")) |> 
+  mutate(id = as.character(id)) |> 
   filter(if_any(-id, ~ !is.na(.x)))
 
 # Lookup table
